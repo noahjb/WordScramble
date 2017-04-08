@@ -53,34 +53,42 @@ class ViewController: UITableViewController {
     func submit(answer: String) {
         let lowerAnswer = answer.lowercased()
         
-        let errorTitle: String
-        let errorMessage: String
-        
-        if isPossible(word: lowerAnswer) {
-            if isOriginal(word: lowerAnswer) {
-                if isReal(word: lowerAnswer) {
-                    usedWords.insert(answer, at: 0)
-                    
-                    let indexPath = IndexPath(item: 0, section: 0)
-                    tableView.insertRows(at: [indexPath], with: .automatic)
-                    
-                    return
-                } else {
-                    errorTitle = "Word not recognized"
-                    errorMessage = "You can't just make them up, you know!"
-                }
-            } else {
-                errorTitle = "Word used already"
-                errorMessage = "Be more original!"
-            }
-        } else {
-            errorTitle = "Word not possible"
-            errorMessage = "You can't spell that word from '\(title!.lowercased())'!"
+        if isValidWord(word: lowerAnswer) {
+            usedWords.insert(answer, at: 0)
+            
+            let indexPath = IndexPath(item: 0, section: 0)
+            tableView.insertRows(at: [indexPath], with: .automatic)
+        }
+    }
+    
+    func isValidWord(word: String) -> Bool {
+        var isValid = true
+        if isStartWord(word: word) {
+            showError(title: "Word is default", message: "Try harder than that!")
+            isValid = false
+        } else if isTooShort(word: word) {
+            showError(title: "Word is too short", message: "Words must be longer than 2 letters!")
+            isValid = false
+        } else if !isPossible(word: word) {
+            showError(title: "Word not possible", message: "You can't spell that word from '\(title!.lowercased())'!")
+            isValid = false
+        } else if !isOriginal(word: word) {
+            showError(title: "Word used already", message: "Be more original!")
+            isValid = false
+        } else if !isReal(word: word) {
+            showError(title: "Word not recognized", message: "You can't just make them up, you know!")
+            isValid = false
         }
         
-        let ac = UIAlertController(title: errorTitle, message: errorMessage, preferredStyle: .alert)
-        ac.addAction(UIAlertAction(title: "OK", style: .default))
-        present(ac, animated: true)
+        return isValid
+    }
+    
+    func isStartWord(word: String) -> Bool {
+        return word == title!.lowercased()
+    }
+    
+    func isTooShort(word: String) -> Bool {
+        return word.utf16.count < 3
     }
     
     func isPossible(word: String) -> Bool {
@@ -105,7 +113,13 @@ class ViewController: UITableViewController {
         let checker = UITextChecker()
         let range = NSMakeRange(0, word.utf16.count)
         let misspelledRange = checker.rangeOfMisspelledWord(in: word, range: range, startingAt: 0, wrap: false, language: "en")
-        return misspelledRange.location == NSNotFound && word.utf16.count >= 3
+        return misspelledRange.location == NSNotFound
+    }
+    
+    func showError(title: String, message: String) {
+        let ac = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        ac.addAction(UIAlertAction(title: "OK", style: .default))
+        present(ac, animated: true)
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
