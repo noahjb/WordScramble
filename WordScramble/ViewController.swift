@@ -105,7 +105,7 @@ class ViewController: UITableViewController {
         let checker = UITextChecker()
         let range = NSMakeRange(0, word.utf16.count)
         let misspelledRange = checker.rangeOfMisspelledWord(in: word, range: range, startingAt: 0, wrap: false, language: "en")
-        return misspelledRange.location == NSNotFound
+        return misspelledRange.location == NSNotFound && word.utf16.count >= 3
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
