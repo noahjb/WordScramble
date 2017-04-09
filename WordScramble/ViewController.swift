@@ -22,12 +22,18 @@ class ViewController: UITableViewController {
         if let startWordsPath = Bundle.main.path(forResource: "start", ofType: "txt") {
             if let startWords = try? String(contentsOfFile: startWordsPath) {
                 allWords = startWords.components(separatedBy: "\n")
+            } else {
+                loadDefaultWords()
             }
         } else {
-            allWords = ["silkworm"]
+            loadDefaultWords()
         }
         
         startGame()
+    }
+    
+    func loadDefaultWords() {
+        allWords = ["silkworm", "agencies", "dirtgrub"]
     }
     
     func startGame() {
