@@ -13,12 +13,13 @@ class ViewController: UITableViewController {
     
     var allWords = [String]()
     var usedWords = [String]()
+    var wordIdx = 0
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(promptForAnswer))
-        
+        navigationItem.leftBarButtonItem = UIBarButtonItem(title: "New Word", style: .plain, target: self, action: #selector(startGame))
         if let startWordsPath = Bundle.main.path(forResource: "start", ofType: "txt") {
             if let startWords = try? String(contentsOfFile: startWordsPath) {
                 allWords = startWords.components(separatedBy: "\n")
@@ -29,6 +30,8 @@ class ViewController: UITableViewController {
             loadDefaultWords()
         }
         
+        allWords = GKRandomSource.sharedRandom().arrayByShufflingObjects(in: allWords) as! [String]
+        
         startGame()
     }
     
@@ -37,10 +40,13 @@ class ViewController: UITableViewController {
     }
     
     func startGame() {
-        allWords = GKRandomSource.sharedRandom().arrayByShufflingObjects(in: allWords) as! [String]
-        title = allWords[0]
+        if wordIdx >= allWords.count {
+            wordIdx = 0
+        }
+        title = allWords[wordIdx]
         usedWords.removeAll(keepingCapacity: true)
         tableView.reloadData()
+        wordIdx += 1
     }
     
     func promptForAnswer() {
